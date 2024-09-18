@@ -14,6 +14,8 @@ let client01PublicKey;
 let client01PrivateKeySalt = crypto.randomBytes(128).toString('base64');
 let client01PrivateKey;
 
+let arbitraryMessage = process.argv[3] || 'Hello, world!';
+
 function signMessage(message) {
   return crypto.createHmac('sha256', client01PrivateKey)
     .update(message)
@@ -34,19 +36,28 @@ app.post('/set-public-key', (req, res) => {
     .digest('hex') !== client01Password) {
     return res.status(401).send('Unauthorized');
   }
-  // if the password is correct, set the public key
+  // if the password is correct, set the public key and log the arbitrary message to the console
   client01PrivateKey = crypto.createHmac('sha256', publicKey)
     .update(client01PrivateKeySalt)
     .digest('hex');
   client01PublicKey = publicKey;
   res.send({ publicKeySet: true });
+  console.log(`arbitrary message entered at process startup: ${arbitraryMessage}`);
+  console.log(`signature for arbitrary message: ${signMessage(arbitraryMessage)}`);
 });
 
-// then we wait for a message to sign
+// this route is not required for this challenge but I thought it was cool to have
+// it handles authenticated HTTP requests for signing a message
 app.post('/sign-message', (req, res) => {
-  const { message } = req.body;
+  const { password, message } = req.body;
+  // if the password is incorrect, return unauthorized
+  if (crypto.createHmac('sha256', password)
+    .update(client01PasswordSalt)
+    .digest('hex') !== client01Password) {
+    return res.status(401).send('Unauthorized');
+  }
+  // if the password is correct, sign the message
   const signature = signMessage(message);
-  console.log(`message: ${message}\nsignature: ${signature}`);
   res.send({ message, signature });
 });
 
@@ -54,7 +65,6 @@ app.post('/sign-message', (req, res) => {
 app.post('/verify-message', (req, res) => {
   const { message, signature } = req.body;
   const valid = signMessage(message) === signature;
-  console.log(`message: ${message}\nsignature: ${signature}\nvalid: ${valid}`);
   res.send({ message, signature, valid });
 });
 
