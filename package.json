@@ -1,0 +1,14 @@
+{
+  "name": "desmond-2022_bitpay_challenge",
+  "version": "1.0.0",
+  "main": "client.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}
