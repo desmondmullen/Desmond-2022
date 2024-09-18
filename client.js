@@ -1,13 +1,3 @@
-/*
-  Create a server to do the following:
-  Set a password via a command line argument when starting the server.
-  Store the password securely in memory, just as if it was a real production password submitted via a user registration.
-  Allow a client to store their public key on the server via an authenticated HTTP request.
-  Using the node.js built-in crypto module, generate an asymmetric key pair and store them in memory for later use.
-  Allow anyone to submit a signed message to the server for verification via an HTTP request.
-  Do not use any dependencies other than Express and the built-in node.js libraries.
-*/
-
 const crypto = require('crypto');
 const express = require('express');
 const app = express();
