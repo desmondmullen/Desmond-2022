@@ -4,14 +4,32 @@ Desmond Mullen - desmondspongmullen@gmail.com
 https://github.com/desmondmullen/Desmond-2022
 
 **DESCRIPTION:**
-This code challenge creates a public key validator with only one client. That client sets their password via the command line when starting the server. The client then sets their public key via password-authenticated HTTP request. Users can then submit a public key to the server for validation via HTTP request without authenticating.
+This code challenge creates a public key validator with only one user. That user sets their password via the command line when starting the server. The user then sets their public key via password-authenticated HTTP request. Other users can then submit a message, signature, and public key to the server for validation via HTTP request without authenticating.
 
 **USAGE:**
-* STARTING THE PROCESS: With a terminal navigated to this repository, enter `node client.js <password> <arbitrary message>` on the command line with whatever password you would like to use for later authentication. The arbitrary message string will be returned on the command line with a signature once a public key is set. Additionally, you can get a signature for any message string via a password-authenticated HTTP request (see "USING AN HTTP REQUEST TO CREATE A MESSAGE SIGNATURE" below).
+* STARTING THE PROCESS: With a terminal navigated to this repository, enter `node server.js <password>` on the command line with whatever password you would like to use for later authentication. After starting the server, you can run the client file to do various operations as follows:
 
-* SETTING A PUBLIC KEY: Make a POST request to `http://localhost:3000/set-public-key` with the "password" string and the "publicKey" string you want to set in a JSON body. The arbitrary message entered at process startup will be logged to the console along with a signature to verify it.
+* SETTING A PUBLIC KEY: `node client.js setPublicKey <password> <publicKey>` Note: this password must match the one set above
+    returns `{ "publicKeySet": true, "publicKey": <publicKey>, "privateKey": <privateKey> }`
 
-* VERIFYING A MESSAGE: After the public key is set, any user can make a POST request to `http://localhost:3000/verify-message` with a "message" string and a "signature" to verify whether the the message is legitimate. You can test this with the message and signature logged to the console when the public key was set or with any string using the `sign-message` HTTP request described below.
+* SIGNING A MESSAGE: `node client.js signMessage <privateKey> <message>`
+    returns `{ "message": <message>, "signature": <signature> }`
 
-**USING AN HTTP REQUEST TO CREATE A MESSAGE SIGNATURE:**
-* Make a POST request to `http://localhost:3000/sign-message` with the client "password" string and the "message" string you want a signature for. The response will include the message and its signature. The message can be verified using the `verify-message` HTTP request described above.
+* VERIFYING A MESSAGE: `node client.js verifyMessage <message> <signature> <publicKey>`
+    returns `{ "message": <message>, "signature": <signature>, "valid": <true|false> }`
+
+**USING WITH POSTMAN**
+After starting the server as above, Postman can be used to interact directly with the server by simply changing the command line arguments to a URL and JSON body elements as follows:
+
+* SETTING A PUBLIC KEY: POST to `http://localhost:3000/setPublicKey` with body:
+    { "password": <password>, "publicKey": <publicKey> }
+    returns `{ "publicKeySet": true, "publicKey": <publicKey>, "privateKey": <privateKey> }`
+
+* SIGNING A MESSAGE: POST to `http://localhost:3000/signMessage` with body:
+    { "privateKey": <privateKey>, "message": <message> }
+    returns `{ "message": <message>, "signature": <signature> }`
+
+* VERIFYING A MESSAGE: POST to `http://localhost:3000/verifyMessage` with body:
+    { "message": <password>, "signature": <signature>, "publicKey": <publicKey> }
+    returns `{ "message": <message>, "signature": <signature>, "valid": <true|false> }`
+
